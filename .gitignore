@@ -131,3 +131,4 @@ dist
 .env.dev
 .env.prod
 vehicle-private-key.json
+package-lock.json
