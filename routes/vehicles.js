@@ -50,7 +50,10 @@ router.get("/", authMiddleware, async (req, res) => {
     const totalVehicles = await Vehicle.countDocuments();
 
     // Find the vehicles with pagination
-    const vehicles = await Vehicle.find().skip(startIndex).limit(limit);
+    const vehicles = await Vehicle.find()
+      .sort({ createdAt: -1 }) // Sort by 'createdAt' in descending order
+      .skip(startIndex)
+      .limit(limit);
 
     // Calculate total pages
     const totalPages = Math.ceil(totalVehicles / limit);
@@ -98,7 +101,10 @@ router.post("/", upload, authMiddleware, async (req, res) => {
     // Check if an image file is provided
     if (file) {
       // Generate unique file name
-      const fileName = `${Date.now()}_${file.originalname}`;
+      const fileName = registrationNumber
+        .toString()
+        .toLowerCase()
+        .replace(/\s+/g, "_");
 
       // Upload the file to Firebase Storage
       const fileUpload = bucket.file(fileName);
@@ -148,62 +154,74 @@ router.post("/:id", upload, authMiddleware, async (req, res) => {
     const { id } = req.params;
     const { name, ownerName, registrationNumber, type, roomNo } = req.body;
     const file = req.file;
-
-    let stickerImgURL = "";
-
-    // Find the vehicle by ID
     const vehicle = await Vehicle.findById(id);
-    if (!vehicle) {
-      return res.status(404).json({ message: "Vehicle not found" });
-    }
+    if (
+      registrationNumber &&
+      registrationNumber === vehicle.registrationNumber
+    ) {
+      let stickerImgURL = "";
 
-    // Check if an image file is provided
-    if (file) {
-      // Generate unique file name
-      const fileName = `${Date.now()}_${file.originalname}`;
+      // Find the vehicle by ID
+      if (!vehicle) {
+        return res.status(404).json({ message: "Vehicle not found" });
+      }
 
-      // Upload the file to Firebase Storage
-      const fileUpload = bucket.file(fileName);
-      const blobStream = fileUpload.createWriteStream({
-        metadata: {
-          contentType: file.mimetype,
+      // Check if an image file is provided
+      if (file) {
+        // Generate unique file name
+        const fileName = registrationNumber
+          .toString()
+          .toLowerCase()
+          .replace(/\s+/g, "_");
+
+        // Upload the file to Firebase Storage
+        const fileUpload = bucket.file(fileName);
+        const blobStream = fileUpload.createWriteStream({
+          metadata: {
+            contentType: file.mimetype,
+          },
+        });
+
+        await new Promise((resolve, reject) => {
+          blobStream.on("error", (error) => {
+            reject(error);
+          });
+
+          blobStream.on("finish", async () => {
+            await storage.bucket(bucket.name).file(fileName).makePublic();
+            stickerImgURL = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+            resolve();
+          });
+
+          blobStream.end(file.buffer);
+        });
+      } else {
+        // If no new image is uploaded, keep the old image URL
+        stickerImgURL = vehicle.stickerImgURL;
+      }
+
+      // Update the vehicle document in MongoDB
+      const updatedVehicle = await Vehicle.findByIdAndUpdate(
+        id,
+        {
+          name,
+          ownerName,
+          registrationNumber,
+          type,
+          roomNo,
+          stickerImgURL, // Update the image URL if a new image was uploaded
+          updatedAt: new Date(),
         },
-      });
+        { new: true } // Return the updated document
+      );
 
-      await new Promise((resolve, reject) => {
-        blobStream.on("error", (error) => {
-          reject(error);
-        });
-
-        blobStream.on("finish", async () => {
-          await storage.bucket(bucket.name).file(fileName).makePublic();
-          stickerImgURL = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-          resolve();
-        });
-
-        blobStream.end(file.buffer);
-      });
+      // Return the updated vehicle with a 200 status code for success
+      res.status(200).json(updatedVehicle);
     } else {
-      // If no new image is uploaded, keep the old image URL
-      stickerImgURL = vehicle.stickerImgURL;
+      return res
+        .status(400)
+        .json({ message: "Invalid or missing registration number" });
     }
-
-    // Update the vehicle document in MongoDB
-    const updatedVehicle = await Vehicle.findByIdAndUpdate(
-      id,
-      {
-        name,
-        ownerName,
-        registrationNumber,
-        type,
-        roomNo,
-        stickerImgURL, // Update the image URL if a new image was uploaded
-      },
-      { new: true } // Return the updated document
-    );
-
-    // Return the updated vehicle with a 200 status code for success
-    res.status(200).json(updatedVehicle);
   } catch (err) {
     // Send a 400 status code for client errors and include error message
     res
