@@ -91,9 +91,10 @@ router.get("/:id", authMiddleware, async (req, res) => {
 });
 
 // Create a new Vehicle with an image upload
-router.post("/", upload, authMiddleware, async (req, res) => {
+router.post("/create", upload, authMiddleware, async (req, res) => {
   try {
-    const { name, ownerName, registrationNumber, type, roomNo } = req.body;
+    const { name, ownerName, regNo, type, roomNo, bldgName } =
+      req.body;
     const file = req.file;
 
     let stickerImgURL = "";
@@ -101,7 +102,7 @@ router.post("/", upload, authMiddleware, async (req, res) => {
     // Check if an image file is provided
     if (file) {
       // Generate unique file name
-      const fileName = registrationNumber
+      const fileName = regNo
         .toString()
         .toLowerCase()
         .replace(/\s+/g, "_");
@@ -133,9 +134,10 @@ router.post("/", upload, authMiddleware, async (req, res) => {
     const vehicle = await Vehicle.create({
       name,
       ownerName,
-      registrationNumber,
+      regNo,
       type,
       roomNo,
+      bldgName,
       stickerImgURL, // Add the image URL to the vehicle data
     });
 
@@ -149,15 +151,16 @@ router.post("/", upload, authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/:id", upload, authMiddleware, async (req, res) => {
+router.post("/update/:id", upload, authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, ownerName, registrationNumber, type, roomNo } = req.body;
+    const { name, ownerName, regNo, type, roomNo, bldgName } =
+      req.body;
     const file = req.file;
     const vehicle = await Vehicle.findById(id);
     if (
-      registrationNumber &&
-      registrationNumber === vehicle.registrationNumber
+      regNo &&
+      regNo === vehicle.regNo
     ) {
       let stickerImgURL = "";
 
@@ -169,7 +172,7 @@ router.post("/:id", upload, authMiddleware, async (req, res) => {
       // Check if an image file is provided
       if (file) {
         // Generate unique file name
-        const fileName = registrationNumber
+        const fileName = regNo
           .toString()
           .toLowerCase()
           .replace(/\s+/g, "_");
@@ -206,9 +209,10 @@ router.post("/:id", upload, authMiddleware, async (req, res) => {
         {
           name,
           ownerName,
-          registrationNumber,
+          regNo,
           type,
           roomNo,
+          bldgName,
           stickerImgURL, // Update the image URL if a new image was uploaded
           updatedAt: new Date(),
         },

@@ -8,6 +8,8 @@ import routes from "./routes/index.js";
 
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
+
 const db_url = "mongodb://localhost:27017/vehicle-parking-system";
 
 mongoose.connect(db_url);
@@ -21,6 +23,16 @@ con.on("open", () => {
 });
 
 app.use(express.json());
+
+// configure specific CORS options
+const corsOptions = {
+  origin: process.env.HOST_URL, // Replace with your client URL
+  methods: "GET,POST",
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
 app.use("", routes);
 
 app.listen(PORT, () => {

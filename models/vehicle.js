@@ -10,7 +10,7 @@ const vehicleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    registrationNumber: {
+    regNo: {
       type: String,
       required: true,
     },
@@ -23,6 +23,10 @@ const vehicleSchema = new mongoose.Schema(
       required: true,
     },
     stickerImgURL: {
+      type: String,
+      required: true,
+    },
+    bldgName: {
       type: String,
       required: true,
     },

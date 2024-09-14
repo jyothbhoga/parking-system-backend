@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/create-admin", async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
