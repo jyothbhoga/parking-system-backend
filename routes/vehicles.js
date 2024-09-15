@@ -138,7 +138,7 @@ router.post("/create", upload, authMiddleware, async (req, res) => {
     });
 
     // Return the created vehicle with a 201 status code for created
-    res.status(201).json(vehicle);
+    res.status(201).json({ vehicle, message: "Vehicle created successfully" });
   } catch (err) {
     // Send a 400 status code for client errors and include error message
     res
@@ -209,7 +209,9 @@ router.post("/update/:id", upload, authMiddleware, async (req, res) => {
       );
 
       // Return the updated vehicle with a 200 status code for success
-      res.status(200).json(updatedVehicle);
+      res
+        .status(200)
+        .json({ vehicle, message: "Vehicle updated successfully" });
     } else {
       return res
         .status(400)
