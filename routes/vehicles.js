@@ -93,8 +93,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 // Create a new Vehicle with an image upload
 router.post("/create", upload, authMiddleware, async (req, res) => {
   try {
-    const { name, ownerName, regNo, type, roomNo, bldgName } =
-      req.body;
+    const { name, ownerName, regNo, type, roomNo, bldgName } = req.body;
     const file = req.file;
 
     let stickerImgURL = "";
@@ -102,10 +101,7 @@ router.post("/create", upload, authMiddleware, async (req, res) => {
     // Check if an image file is provided
     if (file) {
       // Generate unique file name
-      const fileName = regNo
-        .toString()
-        .toLowerCase()
-        .replace(/\s+/g, "_");
+      const fileName = regNo.toString().toLowerCase().replace(/\s+/g, "_");
 
       // Upload the file to Firebase Storage
       const fileUpload = bucket.file(fileName);
@@ -154,14 +150,10 @@ router.post("/create", upload, authMiddleware, async (req, res) => {
 router.post("/update/:id", upload, authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, ownerName, regNo, type, roomNo, bldgName } =
-      req.body;
+    const { name, ownerName, regNo, type, roomNo, bldgName } = req.body;
     const file = req.file;
     const vehicle = await Vehicle.findById(id);
-    if (
-      regNo &&
-      regNo === vehicle.regNo
-    ) {
+    if (regNo && regNo === vehicle.regNo) {
       let stickerImgURL = "";
 
       // Find the vehicle by ID
@@ -172,10 +164,7 @@ router.post("/update/:id", upload, authMiddleware, async (req, res) => {
       // Check if an image file is provided
       if (file) {
         // Generate unique file name
-        const fileName = regNo
-          .toString()
-          .toLowerCase()
-          .replace(/\s+/g, "_");
+        const fileName = regNo.toString().toLowerCase().replace(/\s+/g, "_");
 
         // Upload the file to Firebase Storage
         const fileUpload = bucket.file(fileName);
@@ -231,6 +220,49 @@ router.post("/update/:id", upload, authMiddleware, async (req, res) => {
     res
       .status(400)
       .json({ message: "Error updating vehicle", error: err.message });
+  }
+});
+
+router.post("/delete/:id", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the vehicle by ID
+    const vehicle = await Vehicle.findById(id);
+    if (!vehicle) {
+      return res.status(404).json({ message: "Vehicle not found" });
+    }
+
+    const stickerImgURL = vehicle.stickerImgURL;
+
+    // Check if the vehicle has an image URL
+    if (stickerImgURL) {
+      // Extract the file name from the image URL
+      const fileName = stickerImgURL.split("/").pop();
+
+      // Delete the image from Firebase Storage
+      await storage
+        .bucket(bucket.name)
+        .file(fileName)
+        .delete()
+        .then(() => {
+          console.log(`Successfully deleted file ${fileName} from Firebase.`);
+        })
+        .catch((error) => {
+          console.error(`Error deleting file from Firebase: ${error.message}`);
+        });
+    }
+
+    // Delete the vehicle document from MongoDB
+    await Vehicle.findByIdAndDelete(id);
+
+    // Return a success message
+    res.status(200).json({ message: "Vehicle and image deleted successfully" });
+  } catch (err) {
+    // Handle errors and send response
+    res
+      .status(400)
+      .json({ message: "Error deleting vehicle", error: err.message });
   }
 });
 
