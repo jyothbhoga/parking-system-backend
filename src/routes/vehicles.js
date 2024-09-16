@@ -12,7 +12,7 @@ import admin from "firebase-admin";
 
 const router = express.Router();
 
-import serviceAccount from "../vehicle-private-key.json" assert { type: "json" };
+import serviceAccount from "../../vehicle-private-key.json" assert { type: "json" };
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import authMiddleware from "../auth/authMiddleware.js";
