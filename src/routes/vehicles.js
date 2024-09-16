@@ -1,10 +1,3 @@
-import dotenv from "dotenv";
-import path from "path";
-
-const envFile =
-  process.env.NODE_ENV === "development" ? ".env.dev" : ".env.prod";
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
-
 import express from "express";
 import Vehicle from "../models/vehicle.js";
 
@@ -15,37 +8,40 @@ const router = express.Router();
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import authMiddleware from "../auth/authMiddleware.js";
+import config from "../config/index.js";
 
-if (!process.env.FIREBASE_PRIVATE_KEY) {
-  throw new Error("FIREBASE_PRIVATE_KEY is undefined. Please check your environment variable settings.");
+if (!config.FIREBASE_PRIVATE_KEY) {
+  throw new Error(
+    "FIREBASE_PRIVATE_KEY is undefined. Please check your environment variable settings."
+  );
 }
 
-const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+const privateKey = config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
 const storage = new Storage({
-  projectId: process.env.PROJECT_ID,
+  projectId: config.FIREBASE_PROJECT_ID,
   credentials: {
     private_key: privateKey,
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_email: config.FIREBASE_CLIENT_EMAIL,
   },
 });
 
 // Initialize Firebase Admin and Storage Bucket
 admin.initializeApp({
   credential: admin.credential.cert({
-    type: process.env.FIREBASE_TYPE,
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    type: config.FIREBASE_TYPE,
+    project_id: config.FIREBASE_PROJECT_ID,
+    private_key_id: config.FIREBASE_PRIVATE_KEY_ID,
     private_key: privateKey, // Ensure newlines are handled
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-    auth_uri: process.env.FIREBASE_AUTH_URI,
-    token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_CERT_URL,
-    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
-    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+    client_email: config.FIREBASE_CLIENT_EMAIL,
+    client_id: config.FIREBASE_CLIENT_ID,
+    auth_uri: config.FIREBASE_AUTH_URI,
+    token_uri: config.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url: config.FIREBASE_AUTH_CERT_URL,
+    client_x509_cert_url: config.FIREBASE_CLIENT_CERT_URL,
+    universe_domain: config.FIREBASE_UNIVERSE_DOMAIN,
   }),
-  storageBucket: process.env.STORAGE_BUCKET,
+  storageBucket: config.STORAGE_BUCKET,
 });
 
 const bucket = admin.storage().bucket();
