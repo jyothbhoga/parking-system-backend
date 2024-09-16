@@ -16,7 +16,11 @@ import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import authMiddleware from "../auth/authMiddleware.js";
 
-const privateKey = privateKey,
+if (!process.env.FIREBASE_PRIVATE_KEY) {
+  throw new Error("FIREBASE_PRIVATE_KEY is undefined. Please check your environment variable settings.");
+}
+
+const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
 
 const storage = new Storage({
   projectId: process.env.PROJECT_ID,
@@ -32,7 +36,7 @@ admin.initializeApp({
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: privateKey, 
+    private_key: privateKey, // Ensure newlines are handled
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
     client_id: process.env.FIREBASE_CLIENT_ID,
     auth_uri: process.env.FIREBASE_AUTH_URI,
