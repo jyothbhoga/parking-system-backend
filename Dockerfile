@@ -6,7 +6,9 @@ WORKDIR /app
 
 COPY "package*.json" ./
 
-RUN npm install --production
+ENV NODE_ENV=development
+
+RUN npm install --development
 
 COPY . .
 
