@@ -1,9 +1,5 @@
 import dotenv from "dotenv";
-import path from "path";
-
-const envFile =
-  process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev";
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+dotenv.config();
 import routes from "./routes/index.js";
 
 import express from "express";

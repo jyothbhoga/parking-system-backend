@@ -1,10 +1,6 @@
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import path from "path";
-
-const envFile =
-  process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev";
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+dotenv.config();
+import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
