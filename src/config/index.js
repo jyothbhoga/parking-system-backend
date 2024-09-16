@@ -1,9 +1,23 @@
 import dotenv from "dotenv";
 import path from "path";
 
-const envFile =
-  process.env.NODE_ENV === "development" ? ".env.dev" : ".env.prod";
+const getFile = (type) => {
+  switch (type) {
+    case "development":
+      return ".env.dev";
+    case "local":
+      return ".env.local";
+    case "production":
+      return ".env.production";
+    default:
+      return ".env.local";
+  }
+};
+
+const envFile = getFile(process.env.NODE_ENV);
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+
+console.log(process.env.PORT);
 
 export default {
   PORT: process.env.PORT || 9000,
