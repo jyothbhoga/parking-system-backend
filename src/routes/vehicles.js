@@ -16,10 +16,12 @@ import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import authMiddleware from "../auth/authMiddleware.js";
 
+const privateKey = privateKey,
+
 const storage = new Storage({
   projectId: process.env.PROJECT_ID,
   credentials: {
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Make sure to handle newline formatting
+    private_key: privateKey,
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
   },
 });
@@ -30,7 +32,7 @@ admin.initializeApp({
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Ensure newlines are handled
+    private_key: privateKey, 
     client_email: process.env.FIREBASE_CLIENT_EMAIL,
     client_id: process.env.FIREBASE_CLIENT_ID,
     auth_uri: process.env.FIREBASE_AUTH_URI,
