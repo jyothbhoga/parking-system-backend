@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 
 const db_url = process.env.DB_URL;
-console.log(db_url);
+
 mongoose.connect(db_url);
 
 const app = express();
