@@ -14,7 +14,6 @@ const getVehicles = async (req, res) => {
       globalResponse.data = {
         ...data.vehiclesData,
       };
-      globalResponse.error = { error: "", errorDescription: "" };
       return res.send(globalResponse);
     }
   } catch (err) {
@@ -30,8 +29,7 @@ const getVehicleById = async (req, res) => {
 
     if (data.isSuccess) {
       globalResponse.isSuccess = true;
-      globalResponse.data = data;
-      globalResponse.error = { error: "", errorDescription: "" };
+      globalResponse.data = { vehicleData: data.vehicleData };
       return res.send(globalResponse);
     }
   } catch (err) {
@@ -53,8 +51,7 @@ const createVehicle = async (req, res) => {
 
     if (data.isSuccess) {
       globalResponse.isSuccess = true;
-      globalResponse.data = data;
-      globalResponse.error = { error: "", errorDescription: "" };
+      globalResponse.data = { vehicleData: data.vehicleData };
       return res.send(globalResponse);
     }
   } catch (err) {
@@ -79,8 +76,7 @@ const updateVehicle = async (req, res) => {
 
     if (data.isSuccess) {
       globalResponse.isSuccess = true;
-      globalResponse.data = data;
-      globalResponse.error = { error: "", errorDescription: "" };
+      globalResponse.data = { vehicleData: data.vehicleData };
       return res.send(globalResponse);
     }
   } catch (err) {
@@ -99,8 +95,7 @@ const deleteVehicle = async (req, res) => {
 
     if (data.isSuccess) {
       globalResponse.isSuccess = true;
-      globalResponse.data = data;
-      globalResponse.error = { error: "", errorDescription: "" };
+      globalResponse.data = { message: data.message };
       return res.send(globalResponse);
     }
   } catch (err) {
