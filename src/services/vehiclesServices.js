@@ -128,6 +128,7 @@ const createVehicle = async (body, file) => {
     return resolve({
       isSuccess: true,
       vehicleData: vehicle,
+      message: "Vehicle created successfully",
     });
   });
 };
@@ -201,6 +202,7 @@ const updateVehicle = async (id, body, file) => {
         return resolve({
           isSuccess: true,
           vehicleData: updatedVehicle,
+          message: "Vehicle updated successfully",
         });
       } else {
         return resolve({
