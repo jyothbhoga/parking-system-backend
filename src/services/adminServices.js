@@ -9,23 +9,25 @@ const loginAdmin = async (email, password) => {
     try {
       const admin = await Admin.findOne({ email });
       if (!admin) {
-        return res.send(
-          customError.errorHandler(
-            customError.badRequest,
+        return resolve({
+          isSuccess: false,
+          message: customError.errorHandler(
+            customError.notAuthorized,
             "Invalid email or password."
-          )
-        );
+          ),
+        });
       }
 
       // Check if the password is correct
       const isMatch = await bcrypt.compare(password, admin.password);
       if (!isMatch) {
-        return res.send(
-          customError.errorHandler(
-            customError.badRequest,
+        return resolve({
+          isSuccess: false,
+          message: customError.errorHandler(
+            customError.notAuthorized,
             "Invalid email or password."
-          )
-        );
+          ),
+        });
       }
 
       // Generate a JWT token
@@ -54,12 +56,13 @@ const createAdmin = async (email, password, name) => {
     try {
       const existingAdmin = await Admin.findOne({ email });
       if (existingAdmin) {
-        return res.send(
-          customError.errorHandler(
+        return resolve({
+          isSuccess: false,
+          message: customError.errorHandler(
             customError.badRequest,
             "Admin already exists"
-          )
-        );
+          ),
+        });
       }
 
       // Hash the password
