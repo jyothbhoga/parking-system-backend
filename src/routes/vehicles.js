@@ -1,3 +1,4 @@
+"use strict";
 import express from "express";
 import Vehicle from "../models/vehicle.js";
 
@@ -9,6 +10,7 @@ import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 import authMiddleware from "../auth/authMiddleware.js";
 import config from "../config/index.js";
+import vehicleController from "../controllers/vehicleController.js";
 
 if (!config.FIREBASE_PRIVATE_KEY) {
   throw new Error(
@@ -53,58 +55,10 @@ const upload = multer({
 }).single("stickerImgURL");
 
 // Get all vehicles
-router.get("/", authMiddleware, async (req, res) => {
-  try {
-    // Get page and limit from query params, or set default values
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
-
-    // Calculate the starting index for pagination
-    const startIndex = (page - 1) * limit;
-
-    // Get the total number of vehicles for pagination purposes
-    const totalVehicles = await Vehicle.countDocuments();
-
-    // Find the vehicles with pagination
-    const vehicles = await Vehicle.find()
-      .sort({ createdAt: -1 }) // Sort by 'createdAt' in descending order
-      .skip(startIndex)
-      .limit(limit);
-
-    // Calculate total pages
-    const totalPages = Math.ceil(totalVehicles / limit);
-
-    // Return the paginated result along with additional metadata
-    res.status(200).json({
-      total: totalVehicles, // Total number of vehicles in the database
-      page,
-      totalPages,
-      count: vehicles.length, // Number of vehicles in the current page
-      vehicles,
-    });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving vehicles", error: err.message });
-  }
-});
+router.get("/", authMiddleware, vehicleController.getVehicles);
 
 // Get vehicle by ID
-router.get("/:id", authMiddleware, async (req, res) => {
-  try {
-    const vehicle = await Vehicle.findById(req.params.id);
-
-    if (!vehicle) {
-      return res.status(404).json({ message: "Vehicle not found" }); // 404 status code if no vehicle is found
-    }
-
-    res.status(200).json(vehicle); // Return the vehicle with a 200 status code
-  } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error retrieving vehicle", error: err.message }); // 500 status code for server error
-  }
-});
+router.get("/:id", authMiddleware, vehicleController.getVehicleById);
 
 // Create a new Vehicle with an image upload
 router.post("/create", upload, authMiddleware, async (req, res) => {
