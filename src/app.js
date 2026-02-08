@@ -1,4 +1,6 @@
 import routes from "./routes/index.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 
 import express from "express";
 import mongoose from "mongoose";
@@ -27,6 +29,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("", routes);
 
