@@ -30,8 +30,12 @@ const vehicleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    contact: {
+      type: String,
+      required: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const vehicle = mongoose.model("Vehicle", vehicleSchema);

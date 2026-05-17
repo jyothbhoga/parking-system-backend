@@ -42,7 +42,7 @@ const getVehicles = async (page, limit) => {
         isSuccess: false,
         message: customError.errorHandler(
           customError.internalServerError,
-          "SOMETHING_WRONG"
+          "SOMETHING_WRONG",
         ),
       });
     }
@@ -58,7 +58,7 @@ const getVehicleById = async (id) => {
           isSuccess: false,
           message: customError.errorHandler(
             customError.resourceNotFound,
-            "Vehicle not found"
+            "Vehicle not found",
           ),
         });
       }
@@ -72,7 +72,7 @@ const getVehicleById = async (id) => {
         isSuccess: false,
         message: customError.errorHandler(
           customError.internalServerError,
-          "SOMETHING_WRONG"
+          "SOMETHING_WRONG",
         ),
       });
     }
@@ -81,7 +81,7 @@ const getVehicleById = async (id) => {
 
 const createVehicle = async (body, file) => {
   return new Promise(async (resolve, reject) => {
-    const { name, ownerName, regNo, type, roomNo, bldgName } = body;
+    const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
     let stickerPublicId = "";
 
     if (file) {
@@ -97,7 +97,7 @@ const createVehicle = async (body, file) => {
           isSuccess: false,
           message: customError.errorHandler(
             customError.internalServerError,
-            `Image upload failed: ${error.message}`
+            `Image upload failed: ${error.message}`,
           ),
         });
       }
@@ -110,6 +110,7 @@ const createVehicle = async (body, file) => {
       type,
       roomNo,
       bldgName,
+      contact,
       stickerImgURL: stickerPublicId, // public ID stored; URL generated at read time
     });
     if (!vehicle) {
@@ -117,7 +118,7 @@ const createVehicle = async (body, file) => {
         isSuccess: false,
         message: customError.errorHandler(
           customError.resourceNotFound,
-          "Vehicle not found"
+          "Vehicle not found",
         ),
       });
     }
@@ -132,7 +133,7 @@ const createVehicle = async (body, file) => {
 const updateVehicle = async (id, body, file) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const { name, ownerName, regNo, type, roomNo, bldgName } = body;
+      const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
       const vehicle = await Vehicle.findById(id);
 
       if (regNo && regNo === vehicle.regNo) {
@@ -141,7 +142,7 @@ const updateVehicle = async (id, body, file) => {
             isSuccess: false,
             message: customError.errorHandler(
               customError.resourceNotFound,
-              "Vehicle not found"
+              "Vehicle not found",
             ),
           });
         }
@@ -161,7 +162,7 @@ const updateVehicle = async (id, body, file) => {
               isSuccess: false,
               message: customError.errorHandler(
                 customError.internalServerError,
-                `Image upload failed: ${error.message}`
+                `Image upload failed: ${error.message}`,
               ),
             });
           }
@@ -176,10 +177,11 @@ const updateVehicle = async (id, body, file) => {
             type,
             roomNo,
             bldgName,
+            contact,
             stickerImgURL: stickerPublicId,
             updatedAt: new Date(),
           },
-          { new: true }
+          { new: true },
         );
         return resolve({
           isSuccess: true,
@@ -191,7 +193,7 @@ const updateVehicle = async (id, body, file) => {
           isSuccess: false,
           message: customError.errorHandler(
             customError.badRequest,
-            "Vehicle registration number is not right"
+            "Vehicle registration number is not right",
           ),
         });
       }
@@ -200,7 +202,7 @@ const updateVehicle = async (id, body, file) => {
         isSuccess: false,
         message: customError.errorHandler(
           customError.internalServerError,
-          "SOMETHING_WRONG"
+          "SOMETHING_WRONG",
         ),
       });
     }
@@ -216,7 +218,7 @@ const deleteVehicle = async (id) => {
           isSuccess: false,
           message: customError.errorHandler(
             customError.resourceNotFound,
-            "Vehicle not found"
+            "Vehicle not found",
           ),
         });
       }
@@ -228,7 +230,9 @@ const deleteVehicle = async (id) => {
           await storageService.deleteImage(stored);
           console.log(`Successfully deleted image ${stored} from Cloudinary.`);
         } catch (error) {
-          console.error(`Error deleting image from Cloudinary: ${error.message}`);
+          console.error(
+            `Error deleting image from Cloudinary: ${error.message}`,
+          );
         }
       }
 
@@ -242,7 +246,7 @@ const deleteVehicle = async (id) => {
         isSuccess: false,
         message: customError.errorHandler(
           customError.internalServerError,
-          "SOMETHING_WRONG"
+          "SOMETHING_WRONG",
         ),
       });
     }

@@ -114,6 +114,7 @@ const options = {
             "type",
             "roomNo",
             "bldgName",
+            "contact",
             "stickerImgURL",
           ],
           properties: {
@@ -151,6 +152,11 @@ const options = {
               type: "string",
               description: "Building name",
               example: "Building A",
+            },
+            contact: {
+              type: "string",
+              description: "Mobile Number",
+              example: "9123456780",
             },
             stickerImgURL: {
               type: "string",
@@ -524,6 +530,7 @@ const options = {
                     "type",
                     "roomNo",
                     "bldgName",
+                    "contact",
                     "file",
                   ],
                   properties: {
@@ -557,6 +564,11 @@ const options = {
                       type: "string",
                       description: "Building name",
                       example: "Building A",
+                    },
+                    contact: {
+                      type: "string",
+                      description: "Mobile Number",
+                      example: "9123456780",
                     },
                     file: {
                       type: "string",
@@ -670,6 +682,11 @@ const options = {
                       type: "string",
                       description: "Building name",
                       example: "Building A",
+                    },
+                    contact: {
+                      type: "string",
+                      description: "Mobile Number",
+                      example: "9123456780",
                     },
                     file: {
                       type: "string",

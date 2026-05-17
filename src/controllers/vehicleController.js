@@ -20,7 +20,7 @@ const getVehicles = async (req, res) => {
     }
   } catch (err) {
     return res.send(
-      customError.errorHandler(customError.internalServerError, err)
+      customError.errorHandler(customError.internalServerError, err),
     );
   }
 };
@@ -38,19 +38,19 @@ const getVehicleById = async (req, res) => {
     }
   } catch (err) {
     return res.send(
-      customError.errorHandler(customError.internalServerError, err)
+      customError.errorHandler(customError.internalServerError, err),
     );
   }
 };
 
 const createVehicle = async (req, res) => {
   try {
-    const { name, ownerName, regNo, type, roomNo, bldgName } = req.body;
+    const { name, ownerName, regNo, type, roomNo, contact } = req.body;
     const file = req.file;
     // Passing data to the service layer
     const data = await vehiclesServices.createVehicle(
-      { name, ownerName, regNo, type, roomNo, bldgName },
-      file
+      { name, ownerName, regNo, type, roomNo, bldgName, contact },
+      file,
     );
 
     if (data.isSuccess) {
@@ -73,14 +73,15 @@ const createVehicle = async (req, res) => {
 const updateVehicle = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, ownerName, regNo, type, roomNo, bldgName } = req.body;
+    const { name, ownerName, regNo, type, roomNo, bldgName, contact } =
+      req.body;
     const file = req.file;
 
     // Passing data to the service layer
     const data = await vehiclesServices.updateVehicle(
       id,
-      { name, ownerName, regNo, type, roomNo, bldgName },
-      file
+      { name, ownerName, regNo, type, roomNo, bldgName, contact },
+      file,
     );
 
     if (data.isSuccess) {
