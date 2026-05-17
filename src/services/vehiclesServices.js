@@ -1,24 +1,30 @@
 "use strict";
 import customError from "../helpers/customErrorResponse.js";
-import { bucket, storage } from "../helpers/upload.js";
+import storageService from "./storageService.js";
 import Vehicle from "./../models/vehicle.js";
+
+// Existing DB rows may still hold the old Firebase URL; only convert Cloudinary public IDs.
+const resolveImageUrl = (stored) => {
+  if (!stored || stored.startsWith("https://")) return stored;
+  return storageService.getImageUrl(stored);
+};
+
+const formatVehicle = (vehicle) => {
+  const obj = vehicle.toObject();
+  obj.stickerImgURL = resolveImageUrl(obj.stickerImgURL);
+  return obj;
+};
 
 const getVehicles = async (page, limit) => {
   return new Promise(async (resolve, reject) => {
     try {
-      // Calculate the starting index for pagination
       const startIndex = (page - 1) * limit;
-
-      // Get the total number of vehicles for pagination purposes
       const totalVehicles = await Vehicle.countDocuments();
-
-      // Find the vehicles with pagination
       const vehicles = await Vehicle.find()
-        .sort({ createdAt: -1 }) // Sort by 'createdAt' in descending order
+        .sort({ createdAt: -1 })
         .skip(startIndex)
         .limit(limit);
 
-      // Calculate total pages
       const totalPages = Math.ceil(totalVehicles / limit);
 
       return resolve({
@@ -27,7 +33,7 @@ const getVehicles = async (page, limit) => {
           totalVehicles,
           page,
           totalPages,
-          vehicles,
+          vehicles: vehicles.map(formatVehicle),
         },
       });
     } catch (error) {
@@ -58,7 +64,7 @@ const getVehicleById = async (id) => {
       }
       return resolve({
         isSuccess: true,
-        vehicleData: vehicle,
+        vehicleData: formatVehicle(vehicle),
       });
     } catch (error) {
       console.log(error);
@@ -76,37 +82,27 @@ const getVehicleById = async (id) => {
 const createVehicle = async (body, file) => {
   return new Promise(async (resolve, reject) => {
     const { name, ownerName, regNo, type, roomNo, bldgName } = body;
-    let stickerImgURL = "";
+    let stickerPublicId = "";
 
-    // Check if an image file is provided
     if (file) {
-      // Generate unique file name
       const fileName = regNo.toString().toLowerCase().replace(/\s+/g, "_");
-
-      // Upload the file to Firebase Storage
-      const fileUpload = bucket.file(fileName);
-      const blobStream = fileUpload.createWriteStream({
-        metadata: {
-          contentType: file.mimetype,
-        },
-      });
-
-      await new Promise((resolve, reject) => {
-        blobStream.on("error", (error) => {
-          reject(error);
+      try {
+        const { publicId } = await storageService.uploadImage(file.buffer, {
+          folder: "parking-system/stickers",
+          publicId: fileName,
         });
-
-        blobStream.on("finish", async () => {
-          await storage.bucket(bucket.name).file(fileName).makePublic();
-          stickerImgURL = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-          resolve();
+        stickerPublicId = publicId;
+      } catch (error) {
+        return resolve({
+          isSuccess: false,
+          message: customError.errorHandler(
+            customError.internalServerError,
+            `Image upload failed: ${error.message}`
+          ),
         });
-
-        blobStream.end(file.buffer);
-      });
+      }
     }
 
-    // Create a new vehicle document in MongoDB
     const vehicle = await Vehicle.create({
       name,
       ownerName,
@@ -114,7 +110,7 @@ const createVehicle = async (body, file) => {
       type,
       roomNo,
       bldgName,
-      stickerImgURL, // Add the image URL to the vehicle data
+      stickerImgURL: stickerPublicId, // public ID stored; URL generated at read time
     });
     if (!vehicle) {
       return resolve({
@@ -127,7 +123,7 @@ const createVehicle = async (body, file) => {
     }
     return resolve({
       isSuccess: true,
-      vehicleData: vehicle,
+      vehicleData: formatVehicle(vehicle),
       message: "Vehicle created successfully",
     });
   });
@@ -140,9 +136,6 @@ const updateVehicle = async (id, body, file) => {
       const vehicle = await Vehicle.findById(id);
 
       if (regNo && regNo === vehicle.regNo) {
-        let stickerImgURL = "";
-
-        // Find the vehicle by ID
         if (!vehicle) {
           return resolve({
             isSuccess: false,
@@ -153,38 +146,27 @@ const updateVehicle = async (id, body, file) => {
           });
         }
 
-        // Check if an image file is provided
+        let stickerPublicId = vehicle.stickerImgURL; // keep existing public ID (or legacy URL)
+
         if (file) {
-          // Generate unique file name
           const fileName = regNo.toString().toLowerCase().replace(/\s+/g, "_");
-
-          // Upload the file to Firebase Storage
-          const fileUpload = bucket.file(fileName);
-          const blobStream = fileUpload.createWriteStream({
-            metadata: {
-              contentType: file.mimetype,
-            },
-          });
-
-          await new Promise((resolve, reject) => {
-            blobStream.on("error", (error) => {
-              reject(error);
+          try {
+            const { publicId } = await storageService.uploadImage(file.buffer, {
+              folder: "parking-system/stickers",
+              publicId: fileName,
             });
-
-            blobStream.on("finish", async () => {
-              await storage.bucket(bucket.name).file(fileName).makePublic();
-              stickerImgURL = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-              resolve();
+            stickerPublicId = publicId;
+          } catch (error) {
+            return resolve({
+              isSuccess: false,
+              message: customError.errorHandler(
+                customError.internalServerError,
+                `Image upload failed: ${error.message}`
+              ),
             });
-
-            blobStream.end(file.buffer);
-          });
-        } else {
-          // If no new image is uploaded, keep the old image URL
-          stickerImgURL = vehicle.stickerImgURL;
+          }
         }
 
-        // Update the vehicle document in MongoDB
         const updatedVehicle = await Vehicle.findByIdAndUpdate(
           id,
           {
@@ -194,14 +176,14 @@ const updateVehicle = async (id, body, file) => {
             type,
             roomNo,
             bldgName,
-            stickerImgURL, // Update the image URL if a new image was uploaded
+            stickerImgURL: stickerPublicId,
             updatedAt: new Date(),
           },
-          { new: true } // Return the updated document
+          { new: true }
         );
         return resolve({
           isSuccess: true,
-          vehicleData: updatedVehicle,
+          vehicleData: formatVehicle(updatedVehicle),
           message: "Vehicle updated successfully",
         });
       } else {
@@ -239,29 +221,17 @@ const deleteVehicle = async (id) => {
         });
       }
 
-      const stickerImgURL = vehicle.stickerImgURL;
-
-      // Check if the vehicle has an image URL
-      if (stickerImgURL) {
-        // Extract the file name from the image URL
-        const fileName = stickerImgURL.split("/").pop();
-
-        // Delete the image from Firebase Storage
-        await storage
-          .bucket(bucket.name)
-          .file(fileName)
-          .delete()
-          .then(() => {
-            console.log(`Successfully deleted file ${fileName} from Firebase.`);
-          })
-          .catch((error) => {
-            console.error(
-              `Error deleting file from Firebase: ${error.message}`
-            );
-          });
+      const stored = vehicle.stickerImgURL;
+      if (stored && !stored.startsWith("https://")) {
+        // Only attempt Cloudinary deletion for records with a stored public ID
+        try {
+          await storageService.deleteImage(stored);
+          console.log(`Successfully deleted image ${stored} from Cloudinary.`);
+        } catch (error) {
+          console.error(`Error deleting image from Cloudinary: ${error.message}`);
+        }
       }
 
-      // Delete the vehicle document from MongoDB
       await Vehicle.findByIdAndDelete(id);
       return resolve({
         isSuccess: true,

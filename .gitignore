@@ -130,3 +130,5 @@ dist
 .pnp.*
 .env.dev
 .env.prod
+
+graphify-out
