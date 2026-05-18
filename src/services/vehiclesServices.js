@@ -145,7 +145,7 @@ const updateVehicle = async (id, body, file) => {
       const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
       const vehicle = await Vehicle.findById(id);
 
-      if (String(contact.length) !== 10) {
+      if (String(contact).length !== 10) {
         return resolve({
           isSuccess: false,
           message: customError.errorHandler(
