@@ -83,7 +83,7 @@ const createVehicle = async (body, file) => {
   return new Promise(async (resolve, reject) => {
     const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
     let stickerPublicId = "";
-    if (String(contact.length) !== 10) {
+    if (String(contact).length !== 10) {
       return resolve({
         isSuccess: false,
         message: customError.errorHandler(

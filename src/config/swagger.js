@@ -144,7 +144,7 @@ const options = {
               example: "car",
             },
             roomNo: {
-              type: "string",
+              type: "number",
               description: "Room number",
               example: "101",
             },
@@ -154,7 +154,7 @@ const options = {
               example: "Building A",
             },
             contact: {
-              type: "string",
+              type: "number",
               description: "Mobile Number",
               example: 9123456780,
             },
@@ -556,7 +556,7 @@ const options = {
                       example: "car",
                     },
                     roomNo: {
-                      type: "string",
+                      type: "number",
                       description: "Room number",
                       example: "101",
                     },
@@ -566,7 +566,7 @@ const options = {
                       example: "Building A",
                     },
                     contact: {
-                      type: "string",
+                      type: "number",
                       description: "Mobile Number",
                       example: 9123456780,
                     },
@@ -674,7 +674,7 @@ const options = {
                       example: "car",
                     },
                     roomNo: {
-                      type: "string",
+                      type: "number",
                       description: "Room number",
                       example: "101",
                     },
@@ -684,7 +684,7 @@ const options = {
                       example: "Building A",
                     },
                     contact: {
-                      type: "string",
+                      type: "number",
                       description: "Mobile Number",
                       example: 9123456780,
                     },

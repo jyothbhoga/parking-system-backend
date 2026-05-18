@@ -19,7 +19,7 @@ const vehicleSchema = new mongoose.Schema(
       required: true,
     },
     roomNo: {
-      type: String,
+      type: Number,
       required: true,
     },
     stickerImgURL: {
