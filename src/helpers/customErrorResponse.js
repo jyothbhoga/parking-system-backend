@@ -8,6 +8,7 @@ const customError = {
   Forbidden: 403,
   resourceNotFound: 404,
   internalServerError: 500,
+  invalidContact: 1000,
   ServiceUnavailable: 503,
   alreadyExist: 409,
   errorHandler: (type, message) => {

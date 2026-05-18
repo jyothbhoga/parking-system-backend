@@ -156,7 +156,7 @@ const options = {
             contact: {
               type: "string",
               description: "Mobile Number",
-              example: "9123456780",
+              example: 9123456780,
             },
             stickerImgURL: {
               type: "string",
@@ -568,7 +568,7 @@ const options = {
                     contact: {
                       type: "string",
                       description: "Mobile Number",
-                      example: "9123456780",
+                      example: 9123456780,
                     },
                     file: {
                       type: "string",
@@ -686,7 +686,7 @@ const options = {
                     contact: {
                       type: "string",
                       description: "Mobile Number",
-                      example: "9123456780",
+                      example: 9123456780,
                     },
                     file: {
                       type: "string",

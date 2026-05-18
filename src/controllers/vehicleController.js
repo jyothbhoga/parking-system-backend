@@ -45,11 +45,11 @@ const getVehicleById = async (req, res) => {
 
 const createVehicle = async (req, res) => {
   try {
-    const { name, ownerName, regNo, type, roomNo, contact } = req.body;
+    const { name, ownerName, regNo, type, roomNo, contact, bldgName } = req.body;
     const file = req.file;
     // Passing data to the service layer
     const data = await vehiclesServices.createVehicle(
-      { name, ownerName, regNo, type, roomNo, bldgName, contact },
+      { name, ownerName, regNo, type, roomNo, contact, bldgName },
       file,
     );
 
@@ -73,14 +73,14 @@ const createVehicle = async (req, res) => {
 const updateVehicle = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, ownerName, regNo, type, roomNo, bldgName, contact } =
+    const { name, ownerName, regNo, type, roomNo, contact, bldgName } =
       req.body;
     const file = req.file;
 
     // Passing data to the service layer
     const data = await vehiclesServices.updateVehicle(
       id,
-      { name, ownerName, regNo, type, roomNo, bldgName, contact },
+      { name, ownerName, regNo, type, roomNo, contact, bldgName },
       file,
     );
 

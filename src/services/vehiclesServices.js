@@ -83,6 +83,15 @@ const createVehicle = async (body, file) => {
   return new Promise(async (resolve, reject) => {
     const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
     let stickerPublicId = "";
+    if (String(contact.length) !== 10) {
+      return resolve({
+        isSuccess: false,
+        message: customError.errorHandler(
+          customError.invalidContact,
+          "Invalid Contact",
+        ),
+      });
+    }
 
     if (file) {
       const fileName = regNo.toString().toLowerCase().replace(/\s+/g, "_");
@@ -135,6 +144,16 @@ const updateVehicle = async (id, body, file) => {
     try {
       const { name, ownerName, regNo, type, roomNo, bldgName, contact } = body;
       const vehicle = await Vehicle.findById(id);
+
+      if (String(contact.length) !== 10) {
+        return resolve({
+          isSuccess: false,
+          message: customError.errorHandler(
+            customError.invalidContact,
+            "Invalid Contact",
+          ),
+        });
+      }
 
       if (regNo && regNo === vehicle.regNo) {
         if (!vehicle) {
